@@ -37,8 +37,47 @@ and might need further improvement.
 
 ![plot](./doc/mesh_view.png)
 
+If you get an error message
+
+```
+Exception: Curve loop is not closed
+```
+
+your GDSII input file needs pre-processing, as described below.
+
+# GDSII files that require pre-processing
+
+One difficulty when bringing GDSII layout data is the data representation of 
+holes (cutouts). GDSII uses a concept of self-intersecting (to be more precise: self-touching) 
+polygons where the outer boundary of a polygon turns inside and surrounds the hole, 
+then returns to the outer boundary. This is frequently used to model holes in metal, 
+in normal routing and to fulfill layout density rules. 
+
+This representation is not compatible with gmsh and the OCC kernel: 
+duplicate vertices are not allowed, but these will always occur where returning 
+from the “inside” boundary (hole) to the exterior boundary.
+
+The resulting error message is:
+```
+Exception: Curve loop is not closed
+```
+
+To overcome this limitation, a GDSII preprocessing step was coded that converts 
+the original GDSII file into a “cleaned” version with no self-touching vertices. 
+This is achieved by slicing the polygon into multiple small “solid” polygons 
+with no more than 6 vertices, to cover the same area.
+
+To run this pre-processing step, run gds_fixholes.py with the gds filename as the 
+first commandline parameter. 
 
 
+example:
+```
+python gds_fixholes.py mygdsfile.gds
+```
+
+This will check for duplicate vertices, remove them and create another GDSII file 
+with suffix '_sliced' that you can use with gds2gmsh.
 
 # Theory of operation
 
@@ -60,12 +99,4 @@ lookup table.
 
 Physical 3D groups are defined for each metal layer or dielectric, 
 and physical 2D surfaces are defined for each metal or via polygon.
-
-
-
-
-
-
-
-
 
