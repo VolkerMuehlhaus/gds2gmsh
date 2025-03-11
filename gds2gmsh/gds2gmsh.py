@@ -34,6 +34,8 @@ via_oversize_factor = 1
 
 # seed for maximum mesh cell size, set 0 to diable
 meshseed = 0
+# maximum mesh size, set 0 to disable
+max_mesh_size = 0
 
 # switch between full IHP SG13G2 stackup and a simple stackup with just one oxide layer (no silicon below, no air above)
 fullstack = False
@@ -561,6 +563,9 @@ if len(sys.argv) >= 2:
 
   # generate mesh and show again
   gmsh.option.setNumber("Mesh.SaveAll", 1)  # save everything, no matter if in physical group or not
+  if max_mesh_size>0: 
+    gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_size)
+  
   gmsh.model.mesh.generate()
   gmsh.fltk.run()
   gmsh.write(mesh_name)
