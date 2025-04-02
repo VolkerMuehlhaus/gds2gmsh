@@ -385,6 +385,8 @@ if len(sys.argv) >= 2:
     # iterate over layer numbers
     for layer in layers.keys():
       volume_on_layer_list = get_layer_volumes(gmsh.model,layer)
+      is_any_volume_on_layer = False
+      
       layername = get_metal_layername(layer)
       layer_volume_tags = []  
       
@@ -411,9 +413,9 @@ if len(sys.argv) >= 2:
             gmsh.model.setPhysicalName(2, physical_tag, surfacename) 
             #print('    surface = ' + str(surfacename) + '  ' + str(surfacetag))
           
-      
-      physical_tag = gmsh.model.addPhysicalGroup(3, layer_volume_tags, tag=-1)
-      gmsh.model.setPhysicalName(3, physical_tag, layername) 
+      if is_any_volume_on_layer:
+        physical_tag = gmsh.model.addPhysicalGroup(3, layer_volume_tags, tag=-1)
+        gmsh.model.setPhysicalName(3, physical_tag, layername) 
       
       # add material and body to lists
       # for now, we define metals as epsr=1
